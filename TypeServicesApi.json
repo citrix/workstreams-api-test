@@ -1,0 +1,160 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "api",
+    "title": "Type Services - Services to manage and view Types",
+    "description": "**All calls expect the following headers:**\r\n<br>\r\n\r\n| Header | Value | Required | Methods |\r\n|--------|-------|----------|---------|\r\n| Authorization | CWSAuth bearer=[bearer token] | true | All |\r\n| Citrix-CustomerId | [customer id] | true | All |\r\n| Accept | \\*/\\*, application/*, application/json | true | GET, PUT, POST, PATCH |\r\n| Accept-Charset | UTF-8 | false | GET, PUT, POST, PATCH |\r\n| Content-Type | application/json, charset=UTF-8 | true | PUT, POST, PATCH |\r\n\r\n"
+  },
+  "host": "us.workstreams.cloud.com",
+  "basePath": "/services/Citrix.Workstreams/master/TypeServicesApi",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/heartbeat": {
+      "get": {
+        "tags": [
+          "Heartbeat"
+        ],
+        "operationId": "Heartbeat_Get",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header specified something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    },
+    "/resources/{resourceId}/templates": {
+      "get": {
+        "tags": [
+          "ResourceEnumerations"
+        ],
+        "summary": "Get a list of templates from an appliance[JP1].",
+        "description": "This operation returns the list of available image templates from the specified appliance.\r\n            \r\nThe responses is cached for performance reasons.\r\n            \r\n#### Paging ####\r\n\r\nIf there are too many items to return in one response, a single page of data is\r\nreturned along with an opaque continuation token. This token should be sent with the next request\r\nin order to retrieve the next page of results.",
+        "operationId": "ResourceEnumerations_Get_templates",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "resourceId",
+            "in": "path",
+            "description": "The remote resource ID.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The maximum number of items to return per page. If this field [JP2]is not specified, the page size defaults to 100 items.",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": -1
+          },
+          {
+            "name": "continuationToken",
+            "in": "query",
+            "description": "An opaque continuation token returned from a previous call. If this field is not specified, then the first page is returned.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PagedResult[Object]"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than the expected 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header specified something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "PagedResult[Object]": {
+      "type": "object",
+      "properties": {
+        "pageSize": {
+          "format": "int32",
+          "description": "The number of items returned in this page.",
+          "type": "integer"
+        },
+        "items": {
+          "description": "The array of items returned in this page.",
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "continuationToken": {
+          "description": "An opaque continuation token passed to the next query\r\nin order to get the next page of items. If this value is null, this is the last page.",
+          "type": "string"
+        },
+        "pollingToken": {
+          "description": "An opaque token that used on the next call to retrieve only those items that were modified since this call was made.\r\nThis might not be supported by all controllers.",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "description": "Citrix Bearer Token Authentication.",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}
+
+[JP1]In all APIs, we typically say ‘App Layering appliance’.. apparently this should just be ‘appliance.’ Not sure if this works in this (and other) instances.
+[JP2]field/parameter/value.. ?

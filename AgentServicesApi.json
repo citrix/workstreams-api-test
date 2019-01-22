@@ -1,0 +1,1294 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "api",
+    "title": "Agent Services - Services to register and manage on-premises Workstreams agents",
+    "description": "**All calls expect the following headers:**\r\n<br>\r\n\r\n| Header | Value | Required | Methods |\r\n|--------|-------|----------|---------|\r\n| Authorization | CWSAuth bearer=[bearer token] | true | All |\r\n| Citrix-CustomerId | [customer id] | true | All |\r\n| Accept | \\*/\\*, application/*, application/json | true | GET, PUT, POST, PATCH |\r\n| Accept-Charset | UTF-8 | false | GET, PUT, POST, PATCH |\r\n| Content-Type | application/json, charset=UTF-8 | true | PUT, POST, PATCH |\r\n\r\n"
+  },
+  "host": "us.workstreams.cloud.com",
+  "basePath": "/services/Citrix.Workstreams/master/AgentServicesApi",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/agents/{agentId}": {
+      "get": {
+        "tags": [
+          "AgentServices"
+        ],
+        "summary": "Get the details for an agent",
+        "description": "This operation retrieves the meta data for the specified agent.",
+        "operationId": "AgentServices_Get",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "agentId",
+            "in": "path",
+            "description": "The id of the agent",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AgentModel"
+            }
+          },
+          "404": {
+            "description": "The agent ID did not match any existing agents."
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or was specified as something other than 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "AgentServices"
+        ],
+        "summary": "Update agent meta data",
+        "description": "This operation updates the meta data of an agent. The name, description and certificate fields can be updated.\r\n            \r\n#### Partial Updates ####\r\n\r\nAny fields that are not set in the body or are set to a null value will not be updated and the original value\r\nwill be maintained.",
+        "operationId": "AgentServices_Put",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "agentId",
+            "in": "path",
+            "description": "The id of the agent",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "updateModel",
+            "in": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AgentUpdateModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Invalid fields were passed. Check to ensure that the agent name is not set to an empty string, and that if a certificate is specified, that it is formatted correctly."
+          },
+          "404": {
+            "description": "The agent id did not match any existing agents."
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or it specified something other than 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    },
+    "/agents": {
+      "get": {
+        "tags": [
+          "AgentServices"
+        ],
+        "summary": "Get summary information for all agents",
+        "description": "This operation retrieves meta data about all agents.\r\n            \r\n#### Filtering ####\r\n\r\nThe list of agents returned can be filtered based on the agent's connection status. The status\r\ncan either be \"Connected\" or \"Disconnected\".\r\n\r\n#### Paging ####\r\n\r\nIf there are too many items to return in one response, a single page of data is\r\nreturned along with an opaque continuation token. This token should be sent with the next request\r\nin order to get the next page of results.",
+        "operationId": "AgentServices_Get",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The maximum number of items to return per page. If this value is not specified, the page size defaults to 100. items.",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": -1
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "If specified, only agents with the specified status are included. If this value is not specified all agents will be returned.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "continuationToken",
+            "in": "query",
+            "description": "An opaque continuation token returned from a previous call. If this value is not specified, the first page is returned.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PagedResult[AgentModel]"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing specified something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    },
+    "/agents/{agentId}/connection-status": {
+      "get": {
+        "tags": [
+          "ConnectionStatus"
+        ],
+        "summary": "Get connection status details for an agent[JP1].",
+        "description": "In addition to summary information about the connection status of an agent, this call\r\nalso returns details such as active operations and pending operation queue lengths.",
+        "operationId": "ConnectionStatus_GetConnectionStatus",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "agentId",
+            "in": "path",
+            "description": "The id of the agent.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ConnectionStatusDetailModel"
+            }
+          },
+          "404": {
+            "description": "The agent id did not match any existing agents."
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    },
+    "/connection-statuses": {
+      "get": {
+        "tags": [
+          "ConnectionStatus"
+        ],
+        "summary": "Get connection status summary data for all agents.",
+        "description": "This operation returns a list of the connection status summary data for all agents. The\r\nsummary data does not contain information such as active or pending operation counts. To get\r\nthat information use the operation to get connection status details for a specified agent.\r\n\r\n#### Paging ####\r\n\r\nIf there are too many items to return in one response, a single page of data is\r\nreturned along with an opaque continuation token. This token should be sent with the next request\r\nin order to get the next page of results.",
+        "operationId": "ConnectionStatus_GetPaged",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The maximum number of items to return per page. If this value is[JP2] not specified, then the page size defaults to 100 items.",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": -1
+          },
+          {
+            "name": "continuationToken",
+            "in": "query",
+            "description": "An opaque continuation token returned from a previous call. If this value is not specified, then the first page is returned.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PagedResult[ConnectionStatusSummaryModel]"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    },
+    "/downloads": {
+      "get": {
+        "tags": [
+          "Download"
+        ],
+        "summary": "Get download packages.",
+        "description": "This operation returns a list of all available download packages and details\r\nfor each package.\r\n\r\n#### Paging ####\r\n\r\nIf there are too many items to return in one response, a single page of data will be\r\nreturned along with an opaque continuation token. This token should be sent with the next request\r\nin order to get the next page of results.",
+        "operationId": "Download_Get",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The maximum number of items to return per page. If this value is not specified, the page size defaults to 100 items.",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": -1
+          },
+          {
+            "name": "continuationToken",
+            "in": "query",
+            "description": "An opaque continuation token returned from a previous call. If this value is not specified, the first page is returned.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PagedResult[DownloadInfoModel]"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    },
+    "/downloads/{itemId}": {
+      "get": {
+        "tags": [
+          "Download"
+        ],
+        "summary": "Get the details for a single download package.",
+        "description": "This operation returns information about the specified download package.",
+        "operationId": "Download_Get",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "description": "The id for the download package",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/DownloadInfoModel"
+            }
+          },
+          "404": {
+            "description": "The item ID is not a valid download item."
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than the expected[JP3] 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    },
+    "/downloads/{itemId}/uri": {
+      "post": {
+        "tags": [
+          "Download"
+        ],
+        "summary": "Create a temporary URL to download a package.",
+        "description": "This operation returns a URL used to download the specified package.\r\nThe URL is valid for a limited time. If the URL is no longer valid, this call\r\ncan be made again to generate a new temporary URL.",
+        "operationId": "Download_Post",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "description": "The ID for the download package",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/DownloadUriModel"
+            }
+          },
+          "404": {
+            "description": "The item id is not a valid download item."
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than the expected[JP4] 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    },
+    "/heartbeat": {
+      "get": {
+        "tags": [
+          "Heartbeat"
+        ],
+        "operationId": "Heartbeat_Get",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    },
+    "/resources": {
+      "get": {
+        "tags": [
+          "Resources"
+        ],
+        "summary": "Get all resource configurations.",
+        "description": "This operation returns all the resource configurations.\r\n\r\n#### Filtering ####\r\n            \r\nThe resource configurations can be filtered by either agent or by type.\r\n            \r\n#### Paging ####\r\n\r\nIf there are too many items to return in one response, a single page worth of data is\r\nreturned along with an opaque continuation token. This token should be sent with the next request\r\nin order to get the next page of results.\r\n\r\n<b>Note:</b> Some resource configuration fields are considered sensitive\r\nand are stored with the Citrix Credentials Wallet service. Those fields\r\are not returned with the original data. Instead, tagged data used\r\nwhen retrieving the data from the Citrix Credentials Wallet service is returned.\r\n            \r\n#### Additional Information ####\r\n\r\nClick [here](https://stage-docs.citrix.com/en-us/citrix-cloud/workspaces/workstreams#workstreams-reference) for more information on the resource configurations.",
+        "operationId": "Resources_Get",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The maximum number of items to return per page. If this field[JP5] is not specified, the page size defaults to 100 items.",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": -1
+          },
+          {
+            "name": "agentId",
+            "in": "query",
+            "description": "If specified, only resources associated with the specified agent are returned.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "If specified, only resources of the specified type (i.e. Citrix App Layering, DDC, Citrix Provisioning) are returned.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "continuationToken",
+            "in": "query",
+            "description": "An opaque continuation token returned from a previous call. If this value is not specified, the first page is returned.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PagedResult[ResourceModel]"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than the expected 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than the expected 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Resources"
+        ],
+        "summary": "Add a new resource configuration.",
+        "description": "This operation creates a new resource configuration.\r\n\r\n<b>Note:</b> Some resource configuration fields are considered sensitive\r\nand are stored with the Citrix Credentials Wallet service. Those fields\r\nwill not be returned when the configuration is retrieved. Instead, tagged data used\r\nwhen retrieving the data from the Citrix Credentials Wallet service is returned.\r\n\r\n#### ####\r\n\r\nClick [here](https://stage-docs.citrix.com/en-us/citrix-cloud/workspaces/workstreams#workstreams-reference) for more information on the resource configurations.",
+        "operationId": "Resources_Post",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "resource",
+            "in": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResourceCreateModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResourceModel"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than the expected 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing specified something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    },
+    "/resources/{resourceId}": {
+      "get": {
+        "tags": [
+          "Resources"
+        ],
+        "summary": "Get the configuration for a specific resource.",
+        "description": "This operation gets the resource configuration for the specified resource.\r\n\r\n<b>Note:</b> Some resource configuration fields are considered sensitive\r\nand were stored with the Citrix Credentials Wallet service. Those fields\r\are returned with the original data. Instead, tagged data used\r\nwhen retrieving the data from the Citrix Credentials Wallet service is returned.\r\n\r\n#### ####\r\n\r\nClick [here](https://stage-docs.citrix.com/en-us/citrix-cloud/workspaces/workstreams#workstreams-reference) for more information on the resource configurations.",
+        "operationId": "Resources_Get",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "resourceId",
+            "in": "path",
+            "description": "The ID of the resource to retrieve.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResourceModel"
+            }
+          },
+          "404": {
+            "description": "The resource ID did not match any existing resource configurations."
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than the expected 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than the expected 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Resources"
+        ],
+        "summary": "Update a resource configuration.",
+        "description": "This operation updates the configuration settings for the specified resource.\r\n\r\n#### Partial updates ####\r\n\r\nany fields that are not set in the body or are set to a null value are not updated and the original value\r\nis maintained.\r\n\r\n<b>Note:</b> Some resource configuration fields are considered sensitive\r\nand are stored with the Citrix Credentials Wallet service. Those fields\r\nwill not be returned when retrieving the configuration. Instead, tagged data used\r\nwhen retrieving the data from the Citrix Credentials Wallet service is returned.\r\n\r\n#### Additional Information ####\r\n\r\nClick [here](https://stage-docs.citrix.com/en-us/citrix-cloud/workspaces/workstreams#workstreams-reference) for more information on resource configurations.",
+        "operationId": "Resources_Put",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "resourceId",
+            "in": "path",
+            "description": "The ID of the resource to update.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "resourceUpdateModel",
+            "in": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResourceUpdateModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Invalid fields were passed. Check to ensure that the resource name is not set to an empty string."
+          },
+          "404": {
+            "description": "The resource ID did not match any existing resource configurations."
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than the expected'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than the expected 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Resources"
+        ],
+        "summary": "Delete a resource configuration.",
+        "description": "This operation will permanently remove the resource configuration, including all sensitive information stored\r\nin the Citrix Cloud Credential Wallet.",
+        "operationId": "Resources_Delete",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "resourceId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "404": {
+            "description": "The resource ID did not match any existing resource configurations."
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than the expected 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than the expected'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AgentUpdateModel": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "A display name for the agent appliance. The name does not need to be unique.\r\nThe name cannot be an empty string.\r\n\r\nIf the name field is not specified during a PUT operation, the name field is not updated.",
+          "type": "string"
+        },
+        "description": {
+          "description": "A description of the agent appliance.\r\n\r\nIf the description field is not specified during a PUT operation, the field is not updated.",
+          "type": "string"
+        },
+        "certificate": {
+          "description": "A certificate that can be used amongst agents and Citrix \Cloud for identity and encryption.\r\n\r\nThis is stored in a PEM format:\r\n\r\n-----BEGIN CERTIFICATE----- \r\n(Base64 encoded CERT)\r\n-----END CERTIFICATE-----\r\n\r\nAt this release, only single self-signed certificates are supported. Supporting certificate chains will\r\nnot change this format.\r\n            \r\nIf the certificate field is not specified during a PUT operation, the field is not updated.",
+          "type": "string"
+        }
+      }
+    },
+    "AgentModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The unique identifier of the agent.",
+          "type": "string"
+        },
+        "created": {
+          "format": "date-time",
+          "description": "The date that this meta data record was created when the agent was registered.",
+          "type": "string"
+        },
+        "lastModified": {
+          "format": "date-time",
+          "description": "The date of the last modification to the meta data for this agent.",
+          "type": "string"
+        },
+        "address": {
+          "description": "The address of the agent as reported by the agent at connection time.\r\nIt can be an IP address or a DNS name[JP6].\r\n            \r\nIf the agent is not actively connected, this address may not be correct.\r\n\r\nNOTE: Since this address is reported by the agent and is an address valid within\r\nthe networking environment of the agent, there is no guarantees of uniqueness of\r\nthis address compared to other agents. Nor is there any guarantee of reachability\r\nof this address from external subnets.",
+          "type": "string"
+        },
+        "status": {
+          "description": "The status of the agent. Either 'Connected' or 'Disconnected'.",
+          "type": "string"
+        },
+        "lastConnectTime": {
+          "format": "date-time",
+          "description": "Last time the agent successfully established a connection to the Citrix Cloud service.",
+          "type": "string"
+        },
+        "lastDisconnectTime": {
+          "format": "date-time",
+          "description": "Last time the agent was disconnected from the Citrix Cloud service. The disconnect could\r\nbe the result of the agent shutting down, or it can be the result of a connection timeout\r\ndue to connectivity failure.",
+          "type": "string"
+        },
+        "lastConnectionHeartbeat": {
+          "format": "date-time",
+          "description": "Last time the agent registered a heartbeat. The connection between the Citrix cloud service[JP7] and\r\nthe agent is maintained by keep-alive messages sent over the connection. This time shows the\r\nlast time that the keep-alive was checked and found to be recent.\r\n            \r\nWhen a connection to an agent is lost, this value may continue to get updated until a connection\r\ntimeout occurs in the Citrix Cloud service. This typically happens within minutes of losing the connection.",
+          "type": "string"
+        },
+        "name": {
+          "description": "A display name for the agent appliance. The name does not need to be unique.\r\nThe name cannot be an empty string.\r\n\r\nIf the name field is not specified during a PUT operation, the name field will not be updated.",
+          "type": "string"
+        },
+        "description": {
+          "description": "A description of the agent appliance.\r\n\r\nIf the description field is not specified during a PUT operation, the field is not updated.",
+          "type": "string"
+        },
+        "certificate": {
+          "description": "A certificate used amongst agents and Citrix Cloud for identity and encryption.\r\n\r\nThis certificate is stored in a PEM format:\r\n\r\n-----BEGIN CERTIFICATE----- \r\n(Base64 encoded CERT)\r\n-----END CERTIFICATE-----\r\n\r\n At this release only single self-signed certificates are supported, but supporting certificate chains will\r\nnot change this format.\r\n            \r\nIf the certificate field is not specified during a PUT operation, the field is not updated.",
+          "type": "string"
+        }
+      }
+    },
+    "PagedResult[AgentModel]": {
+      "type": "object",
+      "properties": {
+        "pageSize": {
+          "format": "int32",
+          "description": "The number of items returned in this page.",
+          "type": "integer"
+        },
+        "items": {
+          "description": "The array of items returned in this page.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AgentModel"
+          }
+        },
+        "continuationToken": {
+          "description": "An opaque continuation token passed to the next query\r\nin order to get the next page of items. Null indicates the last page.",
+          "type": "string"
+        },
+        "pollingToken": {
+          "description": "An opaque token used on the next call to only get items modified since this call was made.\r\nThis field is not supported by all controllers.",
+          "type": "string"
+        }
+      }
+    },
+    "ConnectionStatusDetailModel": {
+      "required": [
+        "status"
+      ],
+      "type": "object",
+      "properties": {
+        "activeRequestCount": {
+          "format": "int32",
+          "description": "The number of requests that are actively being handled by the agent.",
+          "type": "integer"
+        },
+        "queuedRequestCount": {
+          "format": "int32",
+          "description": "The number of requests queued in Citrix Cloud waiting to be sent to the agent.",
+          "type": "integer"
+        },
+        "outboundQueue": {
+          "$ref": "#/definitions/QueueDetailModel",
+          "description": "Internal use only."
+        },
+        "status": {
+          "description": "The connection status of the agent. This field is either \"Connected\" or \"Disconnected\".",
+          "type": "string"
+        },
+        "lastConnectTime": {
+          "format": "date-time",
+          "description": "The time when the most recent connection was established between the agent and the Cirrix Cloud service.",
+          "type": "string"
+        },
+        "lastDisconnectTime": {
+          "format": "date-time",
+          "description": "The time when the agent was disconnected from the Citrix Cloud service.",
+          "type": "string"
+        },
+        "lastConnectionHeartbeat": {
+          "format": "date-time",
+          "description": "The approximate last time when the agent was still sending keepalive[JP8] messages to the Citrix Cloud service.",
+          "type": "string"
+        },
+        "agentStatusData": {
+          "description": "This is a collection of data sent from the agent describing more details about its state (i.e. CPU and memory usage, etc).",
+          "type": "object"
+        },
+        "relayInstanceId": {
+          "description": "Internal use only.",
+          "type": "string"
+        }
+      }
+    },
+    "QueueDetailModel": {
+      "type": "object",
+      "properties": {
+        "length": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "PagedResult[ConnectionStatusSummaryModel]": {
+      "type": "object",
+      "properties": {
+        "pageSize": {
+          "format": "int32",
+          "description": "The number of items returned in this page.",
+          "type": "integer"
+        },
+        "items": {
+          "description": "The array of items returned in this page.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ConnectionStatusSummaryModel"
+          }
+        },
+        "continuationToken": {
+          "description": "An opaque continuation token that should be passed to the next query\r\nin order to get the next page of items. If null, then this is the last page.",
+          "type": "string"
+        },
+        "pollingToken": {
+          "description": "An opaque token used on the next call to only retrieve items modified since the this call was made.\r\nThis field might not be supported by all controllers.",
+          "type": "string"
+        }
+      }
+    },
+    "ConnectionStatusSummaryModel": {
+      "required": [
+        "status"
+      ],
+      "type": "object",
+      "properties": {
+        "outboundQueue": {
+          "$ref": "#/definitions/QueueSummaryModel",
+          "description": "Internal use only."
+        },
+        "status": {
+          "description": "The connection status of the agent, either \"Connected\" or \"Disconnected\".",
+          "type": "string"
+        },
+        "lastConnectTime": {
+          "format": "date-time",
+          "description": "The time when the most recent connection was established between the agent and the Citrix Cloud service.",
+          "type": "string"
+        },
+        "lastDisconnectTime": {
+          "format": "date-time",
+          "description": "The time when the agent was disconnected from the Citrix Cloud service.",
+          "type": "string"
+        },
+        "lastConnectionHeartbeat": {
+          "format": "date-time",
+          "description": "The approximate last time when the agent was still sending keepalive messages to the Citrix Cloud service.",
+          "type": "string"
+        },
+        "agentStatusData": {
+          "description": "This is a collection of data sent from the agent describing more details about its state (i.e. CPU and memory usage, etc).",
+          "type": "object"
+        },
+        "relayInstanceId": {
+          "description": "Internal use only.",
+          "type": "string"
+        }
+      }
+    },
+    "QueueSummaryModel": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "PagedResult[DownloadInfoModel]": {
+      "type": "object",
+      "properties": {
+        "pageSize": {
+          "format": "int32",
+          "description": "The number of items returned in this page.",
+          "type": "integer"
+        },
+        "items": {
+          "description": "The array of items returned in this page.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DownloadInfoModel"
+          }
+        },
+        "continuationToken": {
+          "description": "An opaque continuation token passed to the next query\r\nin order to retrieve the next page of items. If this field is null, then this is the last page.",
+          "type": "string"
+        },
+        "pollingToken": {
+          "description": "An opaque token that can be used on the next call to only get items modified since the this call was made.\r\nThis field might[JP9] not be supported by all controllers.",
+          "type": "string"
+        }
+      }
+    },
+    "DownloadInfoModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The ID for the download package. This ID must be used when generating the temporary URL.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the download package.",
+          "type": "string"
+        },
+        "description": {
+          "description": "A brief description of the download package.",
+          "type": "string"
+        },
+        "version": {
+          "description": "The current available version of the package.",
+          "type": "string"
+        },
+        "documentUrl": {
+          "description": "A link to documentation related to the package.",
+          "type": "string"
+        }
+      }
+    },
+    "DownloadUriModel": {
+      "type": "object",
+      "properties": {
+        "uri": {
+          "description": "A temporary URL that can be used to download the package.",
+          "type": "string"
+        }
+      }
+    },
+    "PagedResult[ResourceModel]": {
+      "type": "object",
+      "properties": {
+        "pageSize": {
+          "format": "int32",
+          "description": "The number of items returned in this page.",
+          "type": "integer"
+        },
+        "items": {
+          "description": "The array of items returned in this page.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ResourceModel"
+          }
+        },
+        "continuationToken": {
+          "description": "An opaque continuation token passed to the next query\r\nin order to get the next page of items. If this field is null, then this is the last page.",
+          "type": "string"
+        },
+        "pollingToken": {
+          "description": "An opaque token used on the next call to retrieve only those items modified since this call was made.\r\nThis might not be supported by all controllers.",
+          "type": "string"
+        }
+      }
+    },
+    "ResourceModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "The unique identifier for the resource.",
+          "type": "string"
+        },
+        "lastModified": {
+          "format": "date-time",
+          "description": "The date and time the resource was last updated.",
+          "type": "string"
+        },
+        "agentId": {
+          "description": "The identifier of the agent from which that this resource iscontacted.",
+          "type": "string"
+        },
+        "type": {
+          "description": "The type of the resource.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The name of the resource that should be displayed.",
+          "type": "string"
+        },
+        "description": {
+          "description": "A description of the resource, or notes related to the resource.",
+          "type": "string"
+        },
+        "settings": {
+          "$ref": "#/definitions/CalResourceSettings",
+          "description": "The settings for the resource. These settings are specific to the resource type.",
+          "type": "object"
+        }
+      }
+    },
+    "ResourceCreateModel": {
+      "required": [
+        "name",
+        "agentId",
+        "type",
+        "settings"
+      ],
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the resource that should be displayed.",
+          "type": "string"
+        },
+        "agentId": {
+          "description": "The ID of the agent from which this resource is contacted through.",
+          "type": "string"
+        },
+        "type": {
+          "description": "The type of the resource:\r\n\r\nCitrix Provisioning, Machine Creation Serices (MCS), or Citrix App Layering[JP10]. ",
+          "type": "string"
+        },
+        "settings": {
+          "$ref": "#/definitions/CalResourceSettings",
+          "description": "The settings for the resource. These settings are specific to the resource type.",
+          "type": "object"
+        },
+        "description": {
+          "description": "A description of the resource, or notes related to the resource.",
+          "type": "string"
+        }
+      }
+    },
+    "ResourceUpdateModel": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the displayed resource.",
+          "type": "string"
+        },
+        "description": {
+          "description": "A description of the resource, or notes related to the resource.",
+          "type": "string"
+        },
+        "settings": {
+          "$ref": "#/definitions/CalResourceSettings",
+          "description": "The settings for the resource. These settings are specific to the resource type.",
+          "type": "object"
+        }
+      }
+    },
+    "CalResourceSettings": {
+      "type": "object",
+      "properties": {
+        "ip": {
+          "description": "The IP Address of the Citrix App Layering appliance.",
+          "type": "string"
+        },
+        "port": {
+          "description": "The port on which the Citrix App Layering appliance listens.",
+          "type": "string"
+        },
+        "auth": {
+          "$ref": "#/definitions/CalResourceAuth",
+          "description": "The credentials needed to communicate with the Citrix App Layering appliance."
+        },
+        "smbShare": {
+          "$ref": "#/definitions/CalResourceSmbShare",
+          "description": "The location and credentials needed to communicate with SMB Share."
+        }
+      }
+    },
+    "CalResourceAuth": {
+      "type": "object",
+      "properties": {
+        "credential_type": {
+          "description": "The value describing the type of CredentialData. In this scenario it will always be 'UsernamePassword'.",
+          "type": "string"
+        },
+        "credential_data": {
+          "$ref": "#/definitions/CalResourceCredentialData",
+          "description": "The credentials needed to communicate with the SMB Share."
+        }
+      }
+    },
+    "CalResourceSmbShare": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "description": "The smbShare path must be an encoded SMB URI.\r\n            \r\n<example>\r\nsmb://shareHost/elmPublishShareName/Layered%20Images.\r\n</example>",
+          "type": "string"
+        },
+        "auth": {
+          "$ref": "#/definitions/CalResourceAuth",
+          "description": "The credentials needed to communicate with SMB Share."
+        }
+      }
+    },
+    "CalResourceCredentialData": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "description": "The domain where the user resides.",
+          "type": "string"
+        },
+        "username": {
+          "description": "The username.",
+          "type": "string"
+        },
+        "password": {
+          "description": "The password associated with the username.",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "description": "Citrix Bearer Token Authentication.",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}
+
+[JP1]Nit – don’t think we need to include ‘.’ at the end of a summary sentence ?
+[JP2]Not sure if this is a ‘value’ or a ‘field’. Either works..
+[JP3]Not sure if this makes sense to add this string to the description; if YES, consider adding to previous instances.
+[JP4]See earlier comment. Not sure we need to specify ‘the expected’.
+[JP5]Field or value?
+[JP6]Can it also be a FQDN, or is that the same as ‘DNS name’ in this context?
+[JP7]A few instances of ‘cloud’ adding ‘Citrix Cloud’ not sure if we are talking generic cloud service here, or as it relates specifically to ‘Citrix Cloud’
+[JP8]Keepalive = 1 word
+[JP9]Use ‘field’ or ‘value’ or.. ?
+[JP10]IX has been instructed to remove all instances of ‘PVS’; in this context might be better to write out all bits. I’m checking to determine if ‘CAL’ an approved customer facing term.

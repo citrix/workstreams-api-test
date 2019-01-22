@@ -1,0 +1,496 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "api",
+    "title": "Workstream Services - Services to manage and execute Workstreams",
+    "description": "**All calls expect the following headers:**\r\n<br>\r\n\r\n| Header | Value | Required | Methods |\r\n|--------|-------|----------|---------|\r\n| Authorization | CWSAuth bearer=[bearer token] | true | All |\r\n| Citrix-CustomerId | [customer id] | true | All |\r\n| Accept | \\*/\\*, application/*, application/json | true | GET, PUT, POST, PATCH |\r\n| Accept-Charset | UTF-8 | false | GET, PUT, POST, PATCH |\r\n| Content-Type | application/json, charset=UTF-8 | true | PUT, POST, PATCH |\r\n\r\n"
+  },
+  "host": "us.workstreams.cloud.com",
+  "basePath": "/services/Citrix.Workstreams/master/WorkstreamServicesApi",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/heartbeat": {
+      "get": {
+        "tags": [
+          "Heartbeat"
+        ],
+        "operationId": "Heartbeat_Get",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than the expected 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than the expected 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    },
+    "/workstreams": {
+      "get": {
+        "tags": [
+          "WorkstreamServices"
+        ],
+        "summary": "Get a list of Workstreams or poll for updated Workstreams.",
+        "description": "This operation will get a list of all Workstreams or Workstreams filtered by certain criteria.\r\nIt can also be used to poll for updated Workstreams.\r\n            \r\n#### Filtering and Sorting ####\r\n\r\nThe results for this operation can be filtered by name or by state (i.e. Running, Failed, etc.).\r\nWhen filtering by name, partial matches are used. The match can be found anywhere within the name property.\r\nAn 'orderBy' can be specified to sort the responses by different fields (i.e. name, state).\r\n            \r\n#### Polling ####\r\n\r\nThis operation also supports a polling token. If a call is made without a polling token, then all Workstreams are\r\nreturned based any specified filtering. The response includes a 'pollingToken' field. If that polling token is passed\r\nin on a subsequent request using query parameters, then only updated Workstreams updated since the previous call\r\n are returned. If no Workstreams have been modified, then an empty list is returned. A new polling token is returned with\r\neach request and is passed to the next request while continuing to poll for changes.\r\n            \r\n#### Paging ####\r\n\r\nIf there are too many items to return in one response, a single page of data is\r\nreturned along with an opaque continuation token. This token is sent with the next request\r\nin order to retrieve the next page of results.",
+        "operationId": "WorkstreamServices_Get",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The maximum number of items to return per page. If a value is not specified, the page size defaults to 100 items.",
+            "required": false,
+            "type": "integer",
+            "format": "int32",
+            "default": -1
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "If a value is specified, only return Workstreams in the specified state. Valid values are 'Pending', 'Running', 'CancelRequested', 'Cancelling', 'Cancelled', 'Succeded', or 'Failed'.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "If a value is specified, then only Workstreams with this value in the name are returned. The value exists anywhere in the name.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "orderBy",
+            "in": "query",
+            "description": "If a value is specified[JP1], the results are sorted using the specified field. If not specified, results are sorted by the order they were created. Valid values are 'State ASC' and 'State DESC'.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "continuationToken",
+            "in": "query",
+            "description": "An opaque continuation token returned from a previous call. If this field/value/parameter is not specified, the first page is returned.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "pollingToken",
+            "in": "query",
+            "description": "If this field/value/parameter specified[JP2], only Workstreams updated since the polling token was generated are returned. The polling token is taken from the response of a previous call.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PagedResult[WorkstreamModel]"
+            }
+          },
+          "400": {
+            "description": "An invalid value was passed for one of the query parameters. This could be an invalid 'orderBy' field, invalid 'pollingToken', or an invalid 'state'."
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than the expected 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing specified something other than the expected'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "WorkstreamServices"
+        ],
+        "summary": "Execute a Workstream",
+        "description": "This operation initiates the execution of a Workstream using the playbook specified in the body of the request.\r\n\r\nThe 'inputs' field in the body contains the input fields specific to the actual playbook being executed.\r\nSee below for the input field requirements for each playbook.\r\n            \r\n#### Additional Information ####\r\n\r\nClick [here](https://stage-docs.citrix.com/en-us/citrix-cloud/workspaces/workstreams#configure-a-workstream) for more information on the playbooks and Workstreams.\r\n\r\n#### Playbooks ####\r\n\r\n<p>The following playbooks can be executed.</p>\r\n\r\n\r\n---\r\n#### **Publish Citrix App Layering Image Template Playbook** ####\r\n**Playbook Id: cal-publish[JP3]**<br>\r\n\r\nUse the Citrix App Layering appliance to publish an image from the specified image template.\r\n\r\n<br>\r\n**Playbook Inputs**\r\n<br>The fields should be added to the 'inputs' field when posting a Workstream.<br>\r\n\r\n| Name | Type | Required | Description |\r\n|------|------|----------|-------------|\r\n|calResourceID|string|True|The resource ID of the Citrix App Layering appliance.|\r\n|imageTemplate|string|True|The name of the image template to publish.|\r\n<br>\r\n**Playbook Results**\r\n<br>Upon successful completion of a Workstream, these fields are set in the 'results' field returned from the GET Workstream routes.<br>\r\n\r\n| Name | Type | Description |\r\n|------|------|-------------|\r\n|imageVhd|string|The path identifier for the resulting VHD image.|\r\n<br>\r\n\r\n---\r\n#### **cal-create-platform-layer** ####\r\n**Playbook Id: cal-create-platform-layer**<br>\r\n\r\nCreate an App Layering platform layer\r\n\r\n<br>\r\n**Playbook Inputs**\r\n<br>The fields should be added to the 'inputs' field when posting a Workstream.<br>\r\n\r\n| Name | Type | Required | Description |\r\n|------|------|----------|-------------|\r\n|brokerPlatformType|string|False|The type of the broker platform.|\r\n|calResourceID|string|True|The resource ID of the Citrix App Layering appliance.|\r\n|osLayerName|string|True|The name of the OS layer to associate with the platform layer.|\r\n|reason|string|False|A reason for creating the platform layer.|\r\n|hypervisorPlatform|string|False|The name of the hypervisior platform.|\r\n|layerRevisionSize|integer|True|The size to allocate for the initial platform layer in MBs.|\r\n|layerDescription|string|False|A description of the platform layer.|\r\n|connectorConfigName|string|False|The name of the connector configuration.|\r\n|provisioningPlatform|string|False|The name of the provisioning platform.|\r\n|layerRevisionName|string|True|The name of the initial platform layer version.|\r\n|layerName|string|True|The name of the platform layer.|\r\n|layerRevisionDescription|string|False|A description of the initial platform layer version.|\r\n<br>\r\n**Playbook Results**\r\n<br>Upon successful completion of a Workstream, these fields are set in the 'results' field returned from the GET Workstream routes.<br>\r\n\r\n| Name | Type | Description |\r\n|------|------|-------------|\r\n|status|string|The status of the created platform layer.|\r\n|packagingMachineName|string|The name of packaging virtual machine used to create the layer.|\r\n<br>\r\n\r\n---\r\n#### **cal-create-platform-layer-revision** ####\r\n**Playbook ID: cal-create-platform-layer-revision**<br>\r\n\r\nCreate a version of an App Layering platform layer.\r\n\r\n<br>\r\n**Playbook Inputs**\r\n<br>The fields should be added to the 'inputs' field when posting a Workstream.<br>\r\n\r\n| Name | Type | Required | Description |\r\n|------|------|----------|-------------|\r\n|brokerPlatformType|string|False|The type of broker platform.|\r\n|calResourceID|string|True|The resource ID of the Citrix App Layering appliance.|\r\n|hypervisorPlatform|string|False|The name of the hypervisior platform.|\r\n|reason|string|False|A reason for creating the platform layer.|\r\n|provisioningPlatform|string|False|The name of the provisioning platform.|\r\n|connectorConfigName|string|False|The name of the connector configuration.|\r\n|layerRevisionName|string|True|The name of the platform layer version.|\r\n|layerName|string|True|The name of the platform layer.|\r\n|layerRevisionDescription|string|False|A description of the platform layer version.|\r\n<br>\r\n**Playbook Results**\r\n<br>Upon successful completion of a Workstream, these fields are set in the 'results' field returned from the GET Workstream routes.<br>\r\n\r\n| Name | Type | Description |\r\n|------|------|-------------|\r\n|status|string|The status of the created platform layer version.|\r\n|packagingMachineName|string|The name of the packaging virtual machine that will be used to create the layer.|\r\n<br>\r\n\r\n---\r\n#### **cal-create-app-layer** ####\r\n**Playbook ID: cal-create-app-layer**<br>\r\n\r\nCreate an app layer.\r\n\r\n<br>\r\n**Playbook Inputs**\r\n<br>The fields should be added to the 'inputs' field when posting a Workstream.<br>\r\n\r\n| Name | Type | Required | Description |\r\n|------|------|----------|-------------|\r\n|calResourceID|string|True|The resource ID of the Citrix App Layering appliance.|\r\n|osLayerRevisionName|string|False|The name of the OS layer version to associate with the app layer.|\r\n|osLayerName|string|True|The name of the OS layer to associate with the app layer.|\r\n|reason|string|False|A reason for creating the app layer.|\r\n|requiredLayers|[(string, string)]|False|List of all prerequisite layers.|\r\n|layerRevisionSize|integer|True|The size to allocate for the app layer in MBs.|\r\n|layerDescription|string|False|A description of the app layer.|\r\n|connectorConfigName|string|False|The name of the connector configuration.|\r\n|layerRevisionName|string|True|The name for the initial app layer version.|\r\n|layerName|string|True|The name for the app layer.|\r\n|layerRevisionDescription|string|False|A description of the initial app layer version.|\r\n<br>\r\n**Playbook Results**\r\n<br>Upon successful completion of a Workstream, these fields are set in the 'results' field returned from the GET Workstream routes.<br>\r\n\r\n| Name | Type | Description |\r\n|------|------|-------------|\r\n|status|string|The status of the created app layer.|\r\n|packagingMachineName|string|The name of packaging virtual machine that will be used to create the layer.|\r\n<br>\r\n\r\n---\r\n#### **cal-cancel-platform-layer** ####\r\n**Playbook ID: cal-cancel-platform-layer**<br>\r\n\r\nCancel the creation of a platform layer or platform layer version.\r\n\r\n<br>\r\n**Playbook Inputs**\r\n<br>The fields are added to the 'inputs' field when posting a Workstream.<br>\r\n\r\n| Name | Type | Required | Description |\r\n|------|------|----------|-------------|\r\n|layerRevisionName|string|True|The name of the platform layer version.|\r\n|calResourceID|string|True|The resource ID of the Citrix App Layering appliance.|\r\n|layerName|string|True|The name of the platform layer.|\r\n<br>\r\n\r\n---\r\n#### **cal-delete-app-layer-revision** ####\r\n**Playbook ID: cal-delete-app-layer-revision**<br>\r\n\r\nDelete a version of an app layer\r\n\r\n<br>\r\n**Playbook Inputs**\r\n<br>The fields are added to the 'inputs' field when posting a Workstream.<br>\r\n\r\n| Name | Type | Required | Description |\r\n|------|------|----------|-------------|\r\n|layerRevisionName|string|True|The name of the app Layer version to delete.|\r\n|calResourceID|string|True|The resource ID of the Citrix App Layering appliance.|\r\n|layerName|string|True|The name of the app layer.|\r\n|reason|string|False|A reason for deleting the app layer version.|\r\n<br>\r\n**Playbook Results**\r\n<br>Upon successful completion of a Workstream, these fields are set in the 'results' field returned from the GET Workstream routes.<br>\r\n\r\n| Name | Type | Description |\r\n|------|------|-------------|\r\n|status|string|The status of the deletion operation.|\r\n<br>\r\n\r\n---\r\n#### **cal-create-app-layer-revision** ####\r\n**Playbook ID: cal-create-app-layer-revision**<br>\r\n\r\nCreate a new version of an app layer.\r\n\r\n<br>\r\n**Playbook Inputs**\r\n<br>The fields are added to the 'inputs' field when posting a Workstream.<br>\r\n\r\n| Name | Type | Required | Description |\r\n|------|------|----------|-------------|\r\n|calResourceID|string|True|The resource ID of the Citrix App Layering appliance.|\r\n|baseLayerRevision|string|False|The name of the app layer version the new app layer version based on.|\r\n|reason|string|False|A reason for creating the app layer version.|\r\n|requiredLayers|[string]|False|List of all prerequisite layers.|\r\n|layerRevisionSize|integer|False|The size to allocate for the app layer in MBs.|\r\n|connectorConfigName|string|False|The name of the connector configuration.|\r\n|layerRevisionName|string|True|The name for the new app layer version.|\r\n|layerName|string|True|The name of the app layer.|\r\n|layerRevisionDescription|string|False|A description of the new app layer version.|\r\n<br>\r\n**Playbook Results**\r\n<br>Upon successful completion of a Workstream, these fields are set in the 'results' field returned from the GET Workstream routes.<br>\r\n\r\n| Name | Type | Description |\r\n|------|------|-------------|\r\n|status|string|The status of the created app layer version.|\r\n|packagingMachineName|string|The name of the packaging virtual machine used to create the layer.|\r\n<br>\r\n\r\n---\r\n#### **cal-finalize-layer** ####\r\n**Playbook Id: cal-finalize-layer**<br>\r\n\r\nFinalize an App Layering layer.\r\n\r\n<br>\r\n**Playbook Inputs**\r\n<br>The fields are added to the 'inputs' field when posting a Workstream.<br>\r\n\r\n| Name | Type | Required | Description |\r\n|------|------|----------|-------------|\r\n|layerRevisionName|string|True|The name of the layer version.|\r\n|calResourceID|string|True|The resource ID of the Citrix App Layering appliance.|\r\n|layerName|string|True|The name of the finalized layer.|\r\n|layerType|string|True|The type of finalized layer.|\r\n<br>\r\n**Playbook Results**\r\n<br>Upon successful completion of a Workstream, these fields are displayed in the 'results' field returned from the GET Workstream routes.<br>\r\n\r\n| Name | Type | Description |\r\n|------|------|-------------|\r\n|status|string|The status of the finalize operation.|\r\n<br>\r\n\r\n---\r\n#### **cal-cancel-app-layer** ####\r\n**Playbook ID: cal-cancel-app-layer**<br>\r\n\r\nCancel the creation of an app layer or app layer version.\r\n\r\n<br>\r\n**Playbook Inputs**\r\n<br>The fields added to the 'inputs' field when posting a Workstream.<br>\r\n\r\n| Name | Type | Required | Description |\r\n|------|------|----------|-------------|\r\n|layerRevisionName|string|True|The name of the app layer version.|\r\n|calResourceID|string|True|The resource ID of the Citrix App Layering appliance.|\r\n|layerName|string|True|The name of the app layer.|\r\n<br>\r\n\r\n---\r\n#### **cal-create-os-layer-revision** ####\r\n**Playbook ID: cal-create-os-layer-revision**<br>\r\n\r\nCreate a version of an App Layering OS layer.\r\n\r\n<br>\r\n**Playbook Inputs**\r\n<br>The fields added to the 'inputs' field when posting a Workstream.<br>\r\n\r\n| Name | Type | Required | Description |\r\n|------|------|----------|-------------|\r\n|calResourceID|string|True|The resource ID of the Citrix App Layering appliance.|\r\n|baseLayerRevision|string|False|The name of the OS layer version for which the new OS layer version is based upon.|\r\n|reason|string|False|A reason for deleting the OS layer version.|\r\n|layerRevisionSize|integer|False|The size to allocate for the OS layer in MBs.|\r\n|connectorConfigName|string|False|The name of the connector configuration.|\r\n|layerRevisionName|string|True|The name for the new OS layer version.|\r\n|layerName|string|True|The name of the OS layer.|\r\n|layerRevisionDescription|string|False|A description of the new OS layer version.|\r\n<br>\r\n**Playbook Results**\r\n<br>Upon successful completion of a Workstream, these fields are set in the 'results[JP4]' field returned from the GET Workstream routes.<br>\r\n\r\n| Name | Type | Description |\r\n|------|------|-------------|\r\n|status|string|The status of the OS layer version creation operation.|\r\n|packagingMachineName|string|The name of the packaging virtual machine used to create the layer.|\r\n<br>\r\n\r\n---\r\n#### **cal-delete-os-layer-revision** ####\r\n**Playbook ID: cal-delete-os-layer-revision**<br>\r\n\r\nDelete a version of an App Layering OS layer\r\n\r\n<br>\r\n**Playbook Inputs**\r\n<br>The fields are added to the 'inputs' field when posting a Workstream.<br>\r\n\r\n| Name | Type | Required | Description |\r\n|------|------|----------|-------------|\r\n|layerRevisionName|string|True|The name of the OS layer version to delete.|\r\n|calResourceID|string|True|The resource ID of the Citrix App Layering appliance.|\r\n|layerName|string|True|The name of the OS layer.|\r\n|reason|string|False|A reason for deleting the OS layer version.|\r\n<br>\r\n**Playbook Results**\r\n<br>Upon successful completion of a Workstream, these fields are set in the 'results' field returned from the GET Workstream routes.<br>\r\n\r\n| Name | Type | Description |\r\n|------|------|-------------|\r\n|status|string|The status of the deletion operation.|\r\n<br>\r\n\r\n---\r\n#### **cal-cancel-os-layer** ####\r\n**Playbook Id: cal-cancel-os-layer**<br>\r\n\r\nCancel the creation of an OS layer or OS layer version.\r\n\r\n<br>\r\n**Playbook Inputs**\r\n<br>The fields should be added to the 'inputs' field when posting a Workstream.<br>\r\n\r\n| Name | Type | Required | Description |\r\n|------|------|----------|-------------|\r\n|layerRevisionName|string|True|The name of the OS layer version.|\r\n|calResourceID|string|True|The resource ID of the Citrix App Layering appliance.|\r\n|layerName|string|True|The name of the OS layer.|\r\n<br>\r\n\r\n",
+        "operationId": "WorkstreamServices_Post",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "startWorkstreamModel",
+            "in": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StartWorkstreamModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/WorkstreamModel"
+            }
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than the expected 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    },
+    "/workstreams/{workstreamId}/$cancel": {
+      "post": {
+        "tags": [
+          "WorkstreamServices"
+        ],
+        "summary": "Cancel a running Workstream",
+        "description": "This operation attempts to cancel the running Workstream and all tasks associated with it.",
+        "operationId": "WorkstreamServices_Cancel",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "workstreamId",
+            "in": "path",
+            "description": "The ID of the running workstream.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "404": {
+            "description": "The id is not a valid running Workstream."
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than the expected 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header was missing something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8[JP5]'."
+          }
+        }
+      }
+    },
+    "/workstreams/{workstreamId}": {
+      "get": {
+        "tags": [
+          "WorkstreamServices"
+        ],
+        "summary": "Get the current status of a Workstream[JP6].",
+        "description": "This operation will return the current status of the specified Workstream.",
+        "operationId": "WorkstreamServices_Get",
+        "consumes": [],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Citrix-CustomerId",
+            "in": "header",
+            "description": "The customer's Citrix Cloud ID. This value is sent as a request header.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "workstreamId",
+            "in": "path",
+            "description": "The ID of the running Workstream.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/WorkstreamModel"
+            }
+          },
+          "404": {
+            "description": "The ID is not a valid Workstream."
+          },
+          "401": {
+            "description": "Unauthorized - The Citrix bearer token is missing, invalid, or expired."
+          },
+          "403": {
+            "description": "Forbidden - The user associated with the bearer token does not have the required privileges to perform this operation."
+          },
+          "415": {
+            "description": "Unsupported Media Type - The 'Content-Type' header was missing or specified something other than 'application/json; charset=utf-8'."
+          },
+          "406": {
+            "description": "Not Acceptable - The 'Accept' header specified[JP7] something other than 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "StartWorkstreamModel": {
+      "required": [
+        "name",
+        "playbookId"
+      ],
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The display name for the Workstream",
+          "type": "string"
+        },
+        "description": {
+          "description": "A description entered by the user when initiating the Workstream.",
+          "type": "string"
+        },
+        "playbookId": {
+          "description": "The ID of the playbook to execute as part of the Workstream.",
+          "type": "string"
+        },
+        "inputs": {
+          "description": "A set of input parameters for playbook execution. The required contents of this field varies depending on the playbook being executed.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "WorkstreamModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique identifier of the Workstream.",
+          "type": "string"
+        },
+        "name": {
+          "description": "The display name for the Workstream",
+          "type": "string"
+        },
+        "description": {
+          "description": "A description entered by the user when initiating the Workstream.",
+          "type": "string"
+        },
+        "created": {
+          "format": "date-time",
+          "description": "Timestamp when the Workstream started.",
+          "type": "string"
+        },
+        "lastModified": {
+          "format": "date-time",
+          "description": "Timestamp of the last status update to the Workstream.",
+          "type": "string"
+        },
+        "state": {
+          "description": "State of the Workstream (e.g. Running, Succeeded, Cancelled, etc.).",
+          "type": "string"
+        },
+        "statusMessage": {
+          "description": "Status message.",
+          "type": "string"
+        },
+        "playbookId": {
+          "description": "Unique identifier of the Playbook being executed.",
+          "type": "string"
+        },
+        "steps": {
+          "description": "The list of steps for the Workstream and the operations executed during each step, including the  status for the steps and operations.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/StepModel"
+          }
+        },
+        "results": {
+          "description": "The results returned from the completed execution of the playbook. The contents of this field varies depending on the playbook.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "StepModel": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the step.",
+          "type": "string"
+        },
+        "totalOperations": {
+          "format": "int32",
+          "description": "The number of operations involved in executing the step.",
+          "type": "integer"
+        },
+        "activeOperations": {
+          "format": "int32",
+          "description": "The number of operations that are actively executed.",
+          "type": "integer"
+        },
+        "state": {
+          "description": "State of the step (e.g. Running, Succeeded, Cancelled, etc[JP8].).",
+          "type": "string"
+        },
+        "created": {
+          "format": "date-time",
+          "description": "Start time of the step.",
+          "type": "string"
+        },
+        "lastModified": {
+          "format": "date-time",
+          "description": "Last time the step status was updated.",
+          "type": "string"
+        },
+        "operationStatuses": {
+          "description": "The list of operations and there status.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OperationStatusModel"
+          }
+        }
+      }
+    },
+    "OperationStatusModel": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Name of the operation.",
+          "type": "string"
+        },
+        "state": {
+          "description": "State of the operation (e.g. Running, Succeeded, Cancelled, etc.).",
+          "type": "string"
+        },
+        "statusMessage": {
+          "description": "Any status messages returned from the component that executed the operation.",
+          "type": "string"
+        },
+        "created": {
+          "format": "date-time",
+          "description": "Start time of the operation.",
+          "type": "string"
+        },
+        "lastModified": {
+          "format": "date-time",
+          "description": "When the operation completed or was terminated.",
+          "type": "string"
+        }
+      }
+    },
+    "PagedResult[WorkstreamModel]": {
+      "type": "object",
+      "properties": {
+        "pageSize": {
+          "format": "int32",
+          "description": "The number of items returned in this page.",
+          "type": "integer"
+        },
+        "items": {
+          "description": "The array of items returned in this page.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WorkstreamModel"
+          }
+        },
+        "continuationToken": {
+          "description": "An opaque continuation token passed to the next query\r\nin order to retrieve the next page of items. If null, this is the last page.",
+          "type": "string"
+        },
+        "pollingToken": {
+          "description": "An opaque token used on the next call to retrieve only those items modified since this call was made.\r\nThis might not be supported by all controllers.",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "apiKey": {
+      "type": "apiKey",
+      "description": "Citrix Bearer Token Authentication.",
+      "name": "Authorization",
+      "in": "header"
+    }
+  }
+}
+
+[JP1]Ignore ‘If a value specified’ – I’m not clear if we should say “If this parameter..’ either works, later seems more appropriate (parameter). So, something like “If this parameter is specified..”
+[JP2]Not sure what works here – pick anything that makes sense: ‘field – value – parameter. Key here is that you ask the user to specify SOMETHING
+[JP3]CAL = App Layering
+[JP4]Are these fields ‘set’ or ‘displayed’?
+[JP5]This is a common edit – offering another alternative:  The 'Accept' header was missing 'application/json' or the 'Accept-Charset' header specified something other than 'utf-8'."
+[JP6]Not sure if ‘summary’ needs a period – as in, a proper sentence. ?
+[JP7]Suggesting an alternative for this edit - .. occurs in many spots
+[JP8]What is this step?
